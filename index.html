@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BassStation - オンラインベースチューナー</title>
+  <style>
+    :root {
+      --main-bg-color: #1a1a1a;
+      --secondary-bg-color: #2a2a2a;
+      --primary-color: #4a90e2;
+      --accent-color: #50c878;
+      --text-color: #f0f0f0;
+      --error-color: #e74c3c;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--main-bg-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    header {
+      width: 100%;
+      background-color: var(--secondary-bg-color);
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .subtitle {
+      font-size: 1rem;
+      opacity: 0.8;
+    }
+    
+    main {
+      width: 100%;
+      max-width: 800px;
+      padding: 2rem;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+    }
+    
+    .tuner-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    
+    .tuner-display {
+      width: 100%;
+      height: 200px;
+      background-color: var(--secondary-bg-color);
+      border-radius: 10px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    
+    .note-display {
+      font-size: 5rem;
+      font-weight: bold;
+      transition: color 0.3s ease;
+    }
+    
+    .octave-display {
+      font-size: 1.5rem;
+      opacity: 0.8;
+    }
+    
+    .frequency-display {
+      font-size: 1.2rem;
+      margin-top: 0.5rem;
+    }
+    
+    .meter-container {
+      width: 80%;
+      height: 8px;
+      background-color: #444;
+      border-radius: 4px;
+      margin-top: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .meter-needle {
+      position: absolute;
+      width: 4px;
+      height: 16px;
+      background-color: var(--primary-color);
+      top: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      transition: left 0.1s ease;
+    }
+    
+    .meter-perfect {
+      position: absolute;
+      width: 4px;
+      height: 8px;
+      background-color: var(--text-color);
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0.5;
+    }
+    
+    .controls {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .control-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .control-label {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+    
+    select, button {
+      background-color: var(--secondary-bg-color);
+      color: var(--text-color);
+      border: 1px solid #444;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    select:hover, button:hover {
+      background-color: #3a3a3a;
+    }
+    
+    button {
+      min-width: 120px;
+    }
+    
+    button.active {
+      background-color: var(--primary-color);
+    }
+    
+    .reference-strings {
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      margin-top: 1rem;
+    }
+    
+    .string-button {
+      width: 18%;
+      padding: 1rem 0.5rem;
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+      background-color: var(--secondary-bg-color);
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .string-button:hover {
+      background-color: #3a3a3a;
+    }
+    
+    .string-button.active {
+      background-color: var(--accent-color);
+    }
+    
+    .status-message {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      text-align: center;
+      background-color: var(--secondary-bg-color);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .status-message.visible {
+      opacity: 1;
+    }
+    
+    .status-message.error {
+      background-color: var(--error-color);
+    }
+    
+    footer {
+      width: 100%;
+      background-color: var(--secondary-bg-color);
+      padding: 1rem;
+      text-align: center;
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+    
+    @media (max-width: 600px) {
+      .tuner-display {
+        height: 180px;
+      }
+      
+      .note-display {
+        font-size: 4rem;
+      }
+      
+      .control-row {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .string-button {
+        font-size: 1rem;
+        padding: 0.8rem 0.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>BassStation</h1>
+    <div class="subtitle">オンラインベースチューナー</div>
+  </header>
+  
+  <main>
+    <div class="tuner-container">
+      <div class="tuner-display">
+        <div class="note-display">--</div>
+        <div class="octave-display"></div>
+        <div class="frequency-display">0 Hz</div>
+        <div class="meter-container">
+          <div class="meter-perfect"></div>
+          <div class="meter-needle"></div>
+        </div>
+      </div>
+      
+      <div class="controls">
+        <div class="control-row">
+          <div class="control-group">
+            <div class="control-label">チューニング</div>
+            <select id="tuning-select">
+              <option value="standard">スタンダード (E-A-D-G)</option>
+              <option value="drop-d">ドロップD (D-A-D-G)</option>
+              <option value="five-string">5弦 (B-E-A-D-G)</option>
+              <option value="six-string">6弦 (B-E-A-D-G-C)</option>
+            </select>
+          </div>
+          
+          <div class="control-group">
+            <div class="control-label">基準音</div>
+            <select id="reference-select">
+              <option value="440">A = 440 Hz</option>
+              <option value="442">A = 442 Hz</option>
+              <option value="444">A = 444 Hz</option>
+              <option value="438">A = 438 Hz</option>
+              <option value="432">A = 432 Hz</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="control-row">
+          <button id="start-button">マイクをオン</button>
+          <button id="metronome-button">メトロノーム</button>
+        </div>
+      </div>
+      
+      <div class="reference-strings">
+        <!-- これらはチューニング選択に基づいて動的に生成されます -->
+      </div>
+      
+      <div class="status-message" id="status-message"></div>
+    </div>
+  </main>
+  
+  <footer>
+    <p>© 2025 BassStation - すべてのベーシストのためのツール</p>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // DOM要素
+      const noteDisplay = document.querySelector('.note-display');
+      const octaveDisplay = document.querySelector('.octave-display');
+      const frequencyDisplay = document.querySelector('.frequency-display');
+      const meterNeedle = document.querySelector('.meter-needle');
+      const startButton = document.getElementById('start-button');
+      const metronomeButton = document.getElementById('metronome-button');
+      const tuningSelect = document.getElementById('tuning-select');
+      const referenceSelect = document.getElementById('reference-select');
+      const referenceStringsContainer = document.querySelector('.reference-strings');
+      const statusMessage = document.getElementById('status-message');
+      
+      // アプリケーション状態
+      let isListening = false;
+      let isMetronomeActive = false;
+      let audioContext = null;
+      let analyser = null;
+      let microphone = null;
+      let metronomeInterval = null;
+      let referenceFrequency = 440;
+      
+      // チューニングプリセット
+      const tunings = {
+        'standard': [
+          { note: 'E', octave: 1, frequency: 41.20 },
+          { note: 'A', octave: 1, frequency: 55.00 },
+          { note: 'D', octave: 2, frequency: 73.42 },
+          { note: 'G', octave: 2, frequency: 98.00 }
+        ],
+        'drop-d': [
+          { note: 'D', octave: 1, frequency: 36.71 },
+          { note: 'A', octave: 1, frequency: 55.00 },
+          { note: 'D', octave: 2, frequency: 73.42 },
+          { note: 'G', octave: 2, frequency: 98.00 }
+        ],
+        'five-string': [
+          { note: 'B', octave: 0, frequency: 30.87 },
+          { note: 'E', octave: 1, frequency: 41.20 },
+          { note: 'A', octave: 1, frequency: 55.00 },
+          { note: 'D', octave: 2, frequency: 73.42 },
+          { note: 'G', octave: 2, frequency: 98.00 }
+        ],
+        'six-string': [
+          { note: 'B', octave: 0, frequency: 30.87 },
+          { note: 'E', octave: 1, frequency: 41.20 },
+          { note: 'A', octave: 1, frequency: 55.00 },
+          { note: 'D', octave: 2, frequency: 73.42 },
+          { note: 'G', octave: 2, frequency: 98.00 },
+          { note: 'C', octave: 3, frequency: 130.81 }
+        ]
+      };
+      
+      // 文字列参照ボタンを更新
+      function updateReferenceStrings() {
+        referenceStringsContainer.innerHTML = '';
+        const currentTuning = tunings[tuningSelect.value];
+        
+        currentTuning.forEach((string, index) => {
+          const stringButton = document.createElement('div');
+          stringButton.classList.add('string-button');
+          stringButton.textContent = `${string.note}${string.octave}`;
+          stringButton.dataset.frequency = string.frequency * (referenceFrequency / 440);
+          stringButton.dataset.note = string.note;
+          stringButton.dataset.octave = string.octave;
+          
+          stringButton.addEventListener('click', function() {
+            playReferenceNote(string.note, string.octave, string.frequency * (referenceFrequency / 440));
+            highlightReferenceButton(this);
+          });
+          
+          referenceStringsContainer.appendChild(stringButton);
+        });
+      }
+      
+      // 参照ノートを再生
+      function playReferenceNote(note, octave, frequency) {
+        if (!audioContext) {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + 0.1);
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.start();
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 2);
+        oscillator.stop(audioContext.currentTime + 2.1);
+        
+        // 表示を更新
+        noteDisplay.textContent = note;
+        noteDisplay.style.color = 'var(--accent-color)';
+        octaveDisplay.textContent = octave;
+        frequencyDisplay.textContent = `${frequency.toFixed(2)} Hz`;
+        
+        setTimeout(() => {
+          if (!isListening) {
+            noteDisplay.textContent = '--';
+            noteDisplay.style.color = 'var(--text-color)';
+            octaveDisplay.textContent = '';
+            frequencyDisplay.textContent = '0 Hz';
+          }
+        }, 2100);
+      }
+      
+      // 参照ボタンをハイライト表示
+      function highlightReferenceButton(button) {
+        const buttons = document.querySelectorAll('.string-button');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        
+        setTimeout(() => {
+          button.classList.remove('active');
+        }, 2000);
+      }
+      
+      // マイクを起動してリスニングを開始
+      async function startListening() {
+        try {
+          if (!audioContext) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          }
+          
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          
+          analyser = audioContext.createAnalyser();
+          analyser.fftSize = 2048;
+          
+          microphone = audioContext.createMediaStreamSource(stream);
+          microphone.connect(analyser);
+          
+          isListening = true;
+          startButton.textContent = 'マイクをオフ';
+          startButton.classList.add('active');
+          
+          updateStatus('マイクがアクティブです。音を出してください。');
+          
+          requestAnimationFrame(updatePitch);
+        } catch (error) {
+          console.error('マイクへのアクセスエラー:', error);
+          updateStatus('マイクへのアクセスができませんでした。', true);
+        }
+      }
+      
+      // リスニングを停止
+      function stopListening() {
+        if (microphone) {
+          microphone.disconnect();
+          microphone = null;
+        }
+        
+        if (analyser) {
+          analyser.disconnect();
+          analyser = null;
+        }
+        
+        isListening = false;
+        startButton.textContent = 'マイクをオン';
+        startButton.classList.remove('active');
+        
+        noteDisplay.textContent = '--';
+        noteDisplay.style.color = 'var(--text-color)';
+        octaveDisplay.textContent = '';
+        frequencyDisplay.textContent = '0 Hz';
+        meterNeedle.style.left = '50%';
+        
+        updateStatus('マイクがオフになりました。');
+      }
+      
+      // メトロノームを切り替え
+      function toggleMetronome() {
+        if (isMetronomeActive) {
+          stopMetronome();
+        } else {
+          startMetronome();
+        }
+      }
+      
+      // メトロノームを開始
+      function startMetronome() {
+        if (!audioContext) {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        
+        isMetronomeActive = true;
+        metronomeButton.textContent = 'メトロノーム停止';
+        metronomeButton.classList.add('active');
+        
+        // 60 BPMで開始（毎秒1回のクリック）
+        const clickInterval = 1000; // ミリ秒単位
+        
+        metronomeInterval = setInterval(() => {
+          playMetronomeClick();
+        }, clickInterval);
+        
+        updateStatus('メトロノーム: 60 BPM');
+      }
+      
+      // メトロノームを停止
+      function stopMetronome() {
+        if (metronomeInterval) {
+          clearInterval(metronomeInterval);
+          metronomeInterval = null;
+        }
+        
+        isMetronomeActive = false;
+        metronomeButton.textContent = 'メトロノーム';
+        metronomeButton.classList.remove('active');
+        
+        updateStatus('メトロノームが停止しました。');
+      }
+      
+      // メトロノームのクリック音を再生
+      function playMetronomeClick() {
+        const clickOscillator = audioContext.createOscillator();
+        const clickGain = audioContext.createGain();
+        
+        clickOscillator.type = 'sine';
+        clickOscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+        
+        clickGain.gain.setValueAtTime(0, audioContext.currentTime);
+        clickGain.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.001);
+        clickGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+        
+        clickOscillator.connect(clickGain);
+        clickGain.connect(audioContext.destination);
+        
+        clickOscillator.start();
+        clickOscillator.stop(audioContext.currentTime + 0.1);
+      }
+      
+      // オートコリレーションを使用してピッチを検出
+      function autoCorrelate(buffer, sampleRate) {
+        // 最低検出周波数に基づくバッファサイズ（低音E弦の周波数で約30Hz）
+        const minFrequency = 25;
+        const maxSamples = Math.floor(sampleRate / minFrequency);
+        
+        let bestOffset = -1;
+        let bestCorrelation = 0;
+        let rms = 0;
+        
+        // RMS（平均二乗平方根）を計算して信号強度を確認
+        for (let i = 0; i < buffer.length; i++) {
+          rms += buffer[i] * buffer[i];
+        }
+        rms = Math.sqrt(rms / buffer.length);
+        
+        // 信号が弱すぎる場合は終了
+        if (rms < 0.01) return -1;
+        
+        // 各オフセットに対して相関を探す
+        for (let offset = 0; offset < maxSamples; offset++) {
+          let correlation = 0;
+          let count = 0;
+          
+          // 各サンプルペアの相関を計算
+          for (let i = 0; i < buffer.length - offset; i++) {
+            correlation += buffer[i] * buffer[i + offset];
+            count++;
+          }
+          
+          // 正規化
+          correlation = correlation / count;
+          
+          // 最高の相関関係を見つける
+          if (correlation > bestCorrelation) {
+            bestCorrelation = correlation;
+            bestOffset = offset;
+          }
+        }
+        
+        // 相関が弱すぎる場合は結果を信頼しない
+        if (bestCorrelation < 0.4) return -1;
+        
+        return sampleRate / bestOffset;
+      }
+      
+      // ピッチを更新して表示
+      function updatePitch() {
+        if (!isListening || !analyser) {
+          return;
+        }
+        
+        const bufferLength = analyser.fftSize;
+        const buffer = new Float32Array(bufferLength);
+        analyser.getFloatTimeDomainData(buffer);
+        
+        const frequency = autoCorrelate(buffer, audioContext.sampleRate);
+        
+        if (frequency > 0) {
+          const adjustedFrequency = frequency;
+          displayNote(adjustedFrequency);
+          frequencyDisplay.textContent = `${adjustedFrequency.toFixed(2)} Hz`;
+        }
+        
+        requestAnimationFrame(updatePitch);
+      }
+      
+      // 周波数から音名と差を決定
+      function displayNote(frequency) {
+        // ノート名とオクターブの配列
+        const noteStrings = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
+        
+        // 参照A4の周波数とMIDIノート番号
+        const referenceA4 = referenceFrequency;
+        const referenceA4MidiNote = 69;
+        
+        // 周波数から最も近いMIDIノート番号を計算
+        const midiNote = Math.round(12 * Math.log2(frequency / referenceA4) + referenceA4MidiNote);
+        
+        // MIDIノート番号からノート名とオクターブを決定
+        const noteName = noteStrings[midiNote % 12];
+        const octave = Math.floor(midiNote / 12) - 1;
+        
+        // MIDIノート番号に相当する周波数を計算
+        const noteFrequency = referenceA4 * Math.pow(2, (midiNote - referenceA4MidiNote) / 12);
+        
+        // 周波数の差をセント（半音の1/100）で計算
+        const cents = Math.round(1200 * Math.log2(frequency / noteFrequency));
+        
+        // UI更新
+        noteDisplay.textContent = noteName;
+        octaveDisplay.textContent = octave;
+        
+        // メーターの針を更新
+        // セントの範囲は-50から+50と仮定
+        const needlePosition = 50 + cents;
+        const clampedPosition = Math.max(0, Math.min(100, needlePosition));
+        meterNeedle.style.left = `${clampedPosition}%`;
+        
+        // チューニングの精度に基づいて色を変更
+        if (Math.abs(cents) < 5) {
+          noteDisplay.style.color = 'var(--accent-color)';  // ほぼ完全
+        } else if (Math.abs(cents) < 15) {
+          noteDisplay.style.color = 'var(--primary-color)';  // 近い
+        } else {
+          noteDisplay.style.color = 'var(--text-color)';  // 離れている
+        }
+      }
+      
+      // ステータスメッセージを更新
+      function updateStatus(message, isError = false) {
+        statusMessage.textContent = message;
+        statusMessage.classList.add('visible');
+        
+        if (isError) {
+          statusMessage.classList.add('error');
+        } else {
+          statusMessage.classList.remove('error');
+        }
+        
+        setTimeout(() => {
+          statusMessage.classList.remove('visible');
+        }, 3000);
+      }
+      
+      // 基準周波数の変更をリッスン
+      referenceSelect.addEventListener('change', function() {
+        referenceFrequency = parseInt(this.value);
+        updateReferenceStrings();
+        updateStatus(`基準音: A = ${referenceFrequency} Hz`);
+      });
+      
+      // チューニングの変更をリッスン
+      tuningSelect.addEventListener('change', function() {
+        updateReferenceStrings();
+        updateStatus(`チューニング: ${this.options[this.selectedIndex].text}`);
+      });
+      
+      // マイクボタンのクリックをリッスン
+      startButton.addEventListener('click', function() {
+        if (isListening) {
+          stopListening();
+        } else {
+          startListening();
+        }
+      });
+      
+      // メトロノームボタンのクリックをリッスン
+      metronomeButton.addEventListener('click', toggleMetronome);
+      
+      // 初期設定
+      updateReferenceStrings();
+    });
+  </script>
+</body>
+</html>
