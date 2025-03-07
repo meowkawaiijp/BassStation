@@ -4,252 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BassStation - オンラインベースチューナー</title>
-  <style>
-    :root {
-      --main-bg-color: #1a1a1a;
-      --secondary-bg-color: #2a2a2a;
-      --primary-color: #4a90e2;
-      --accent-color: #50c878;
-      --text-color: #f0f0f0;
-      --error-color: #e74c3c;
-    }
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      font-family: 'Roboto', sans-serif;
-      background-color: var(--main-bg-color);
-      color: var(--text-color);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    
-    header {
-      width: 100%;
-      background-color: var(--secondary-bg-color);
-      padding: 1rem;
-      text-align: center;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    }
-    
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
-    }
-    
-    .subtitle {
-      font-size: 1rem;
-      opacity: 0.8;
-    }
-    
-    main {
-      width: 100%;
-      max-width: 800px;
-      padding: 2rem;
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2rem;
-    }
-    
-    .tuner-container {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1.5rem;
-    }
-    
-    .tuner-display {
-      width: 100%;
-      height: 200px;
-      background-color: var(--secondary-bg-color);
-      border-radius: 10px;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-    }
-    
-    .note-display {
-      font-size: 5rem;
-      font-weight: bold;
-      transition: color 0.3s ease;
-    }
-    
-    .octave-display {
-      font-size: 1.5rem;
-      opacity: 0.8;
-    }
-    
-    .frequency-display {
-      font-size: 1.2rem;
-      margin-top: 0.5rem;
-    }
-    
-    .meter-container {
-      width: 80%;
-      height: 8px;
-      background-color: #444;
-      border-radius: 4px;
-      margin-top: 1rem;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .meter-needle {
-      position: absolute;
-      width: 4px;
-      height: 16px;
-      background-color: var(--primary-color);
-      top: -4px;
-      left: 50%;
-      transform: translateX(-50%);
-      transition: left 0.1s ease;
-    }
-    
-    .meter-perfect {
-      position: absolute;
-      width: 4px;
-      height: 8px;
-      background-color: var(--text-color);
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      opacity: 0.5;
-    }
-    
-    .controls {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    
-    .control-row {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-    
-    .control-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    
-    .control-label {
-      font-size: 0.9rem;
-      opacity: 0.9;
-    }
-    
-    select, button {
-      background-color: var(--secondary-bg-color);
-      color: var(--text-color);
-      border: 1px solid #444;
-      padding: 0.5rem 1rem;
-      border-radius: 5px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    
-    select:hover, button:hover {
-      background-color: #3a3a3a;
-    }
-    
-    button {
-      min-width: 120px;
-    }
-    
-    button.active {
-      background-color: var(--primary-color);
-    }
-    
-    .reference-strings {
-      width: 100%;
-      display: flex;
-      justify-content: space-around;
-      margin-top: 1rem;
-    }
-    
-    .string-button {
-      width: 18%;
-      padding: 1rem 0.5rem;
-      text-align: center;
-      font-size: 1.2rem;
-      font-weight: bold;
-      background-color: var(--secondary-bg-color);
-      border-radius: 5px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    
-    .string-button:hover {
-      background-color: #3a3a3a;
-    }
-    
-    .string-button.active {
-      background-color: var(--accent-color);
-    }
-    
-    .status-message {
-      margin-top: 1rem;
-      padding: 0.5rem 1rem;
-      border-radius: 5px;
-      text-align: center;
-      background-color: var(--secondary-bg-color);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    
-    .status-message.visible {
-      opacity: 1;
-    }
-    
-    .status-message.error {
-      background-color: var(--error-color);
-    }
-    
-    footer {
-      width: 100%;
-      background-color: var(--secondary-bg-color);
-      padding: 1rem;
-      text-align: center;
-      font-size: 0.9rem;
-      opacity: 0.8;
-    }
-    
-    @media (max-width: 600px) {
-      .tuner-display {
-        height: 180px;
-      }
-      
-      .note-display {
-        font-size: 4rem;
-      }
-      
-      .control-row {
-        flex-direction: column;
-        align-items: center;
-      }
-      
-      .string-button {
-        font-size: 1rem;
-        padding: 0.8rem 0.3rem;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="resource/style.css">
+  
 </head>
 <body>
   <header>
@@ -297,10 +53,22 @@
           <button id="start-button">マイクをオン</button>
           <button id="metronome-button">メトロノーム</button>
         </div>
+        
+        <div class="control-row">
+          <div class="control-group">
+            <div class="control-label">マイク感度</div>
+            <input type="range" id="sensitivity-slider" min="0.001" max="0.1" step="0.001" value="0.01">
+            <span id="sensitivity-value">1.0</span>
+          </div>
+        </div>
       </div>
       
       <div class="reference-strings">
         <!-- これらはチューニング選択に基づいて動的に生成されます -->
+      </div>
+      
+      <div class="audio-visualizer">
+        <canvas id="waveform-canvas"></canvas>
       </div>
       
       <div class="status-message" id="status-message"></div>
@@ -324,6 +92,14 @@
       const referenceSelect = document.getElementById('reference-select');
       const referenceStringsContainer = document.querySelector('.reference-strings');
       const statusMessage = document.getElementById('status-message');
+      const sensitivitySlider = document.getElementById('sensitivity-slider');
+      const sensitivityValue = document.getElementById('sensitivity-value');
+      const waveformCanvas = document.getElementById('waveform-canvas');
+      const waveformCtx = waveformCanvas.getContext('2d');
+      
+      // キャンバスサイズ設定
+      waveformCanvas.width = 400;
+      waveformCanvas.height = 100;
       
       // アプリケーション状態
       let isListening = false;
@@ -333,6 +109,11 @@
       let microphone = null;
       let metronomeInterval = null;
       let referenceFrequency = 440;
+      let sensitivityMultiplier = 1.0;
+      let noiseFloor = 0.005; // ノイズフロアの初期値
+      let calibrationInProgress = false;
+      let consecutiveFailedDetections = 0;
+      const MAX_FAILED_DETECTIONS = 10;
       
       // チューニングプリセット
       const tunings = {
@@ -399,7 +180,7 @@
         oscillator.type = 'sine';
         oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
         gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + 0.1);
+        gainNode.gain.linearRampToValueAtTime(0.7, audioContext.currentTime + 0.1); // 音量を上げる
         
         oscillator.connect(gainNode);
         gainNode.connect(audioContext.destination);
@@ -435,6 +216,39 @@
         }, 2000);
       }
       
+      // 自動キャリブレーション実行
+      async function performAutoCalibration() {
+        if (!analyser || calibrationInProgress) return;
+        
+        calibrationInProgress = true;
+        updateStatus('環境音のキャリブレーション中...');
+        
+        const samples = 10;
+        let totalNoise = 0;
+        
+        for (let i = 0; i < samples; i++) {
+          const bufferLength = analyser.fftSize;
+          const buffer = new Float32Array(bufferLength);
+          analyser.getFloatTimeDomainData(buffer);
+          
+          let rms = 0;
+          for (let j = 0; j < buffer.length; j++) {
+            rms += buffer[j] * buffer[j];
+          }
+          rms = Math.sqrt(rms / buffer.length);
+          
+          totalNoise += rms;
+          
+          // サンプル間で少し待つ
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
+        noiseFloor = (totalNoise / samples) * 2.5; // 平均値の2.5倍をノイズフロアに設定
+        console.log(`環境音のノイズフロア: ${noiseFloor}`);
+        updateStatus(`環境音のキャリブレーション完了`);
+        calibrationInProgress = false;
+      }
+      
       // マイクを起動してリスニングを開始
       async function startListening() {
         try {
@@ -442,10 +256,24 @@
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
           }
           
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          // AudioContextが suspended状態の場合に再開
+          if (audioContext.state === 'suspended') {
+            await audioContext.resume();
+          }
+          
+          // 詳細オプションでマイク入力を取得
+          const stream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+              echoCancellation: false,
+              noiseSuppression: false,
+              autoGainControl: false,
+              channelCount: 1
+            }
+          });
           
           analyser = audioContext.createAnalyser();
-          analyser.fftSize = 2048;
+          analyser.fftSize = 4096; // より高い解像度
+          analyser.smoothingTimeConstant = 0.8; // スムージングを調整
           
           microphone = audioContext.createMediaStreamSource(stream);
           microphone.connect(analyser);
@@ -455,6 +283,12 @@
           startButton.classList.add('active');
           
           updateStatus('マイクがアクティブです。音を出してください。');
+          
+          // 環境音のキャリブレーション
+          await performAutoCalibration();
+          
+          // 初期化
+          consecutiveFailedDetections = 0;
           
           requestAnimationFrame(updatePitch);
         } catch (error) {
@@ -485,6 +319,9 @@
         frequencyDisplay.textContent = '0 Hz';
         meterNeedle.style.left = '50%';
         
+        // キャンバスをクリア
+        waveformCtx.clearRect(0, 0, waveformCanvas.width, waveformCanvas.height);
+        
         updateStatus('マイクがオフになりました。');
       }
       
@@ -509,6 +346,9 @@
         
         // 60 BPMで開始（毎秒1回のクリック）
         const clickInterval = 1000; // ミリ秒単位
+        
+        // 初回のクリックを直ちに再生
+        playMetronomeClick();
         
         metronomeInterval = setInterval(() => {
           playMetronomeClick();
@@ -540,7 +380,7 @@
         clickOscillator.frequency.setValueAtTime(880, audioContext.currentTime);
         
         clickGain.gain.setValueAtTime(0, audioContext.currentTime);
-        clickGain.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.001);
+        clickGain.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + 0.001); // 音量を上げる
         clickGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
         
         clickOscillator.connect(clickGain);
@@ -550,50 +390,177 @@
         clickOscillator.stop(audioContext.currentTime + 0.1);
       }
       
+      // YIN アルゴリズムを使用したピッチ検出
+      function detectPitchYIN(buffer, sampleRate) {
+        const threshold = 0.1; // YINアルゴリズムの閾値
+        const bufferSize = buffer.length;
+        const yinBuffer = new Float32Array(bufferSize / 2);
+        
+        // YINアルゴリズムステップ1: 自己相関関数
+        for (let t = 0; t < yinBuffer.length; t++) {
+          yinBuffer[t] = 0;
+          for (let i = 0; i < yinBuffer.length; i++) {
+            const delta = buffer[i] - buffer[i + t];
+            yinBuffer[t] += delta * delta;
+          }
+        }
+        
+        // YINアルゴリズムステップ2: 累積平均正規化
+        let sum = 0;
+        yinBuffer[0] = 1;
+        for (let t = 1; t < yinBuffer.length; t++) {
+          sum += yinBuffer[t];
+          yinBuffer[t] *= t / sum;
+        }
+        
+        // YINアルゴリズムステップ3: 閾値による絶対最小値の検出
+        let tau = 0;
+        let minVal = 1000; // 非常に大きい値で初期化
+        
+        for (let t = 2; t < yinBuffer.length; t++) {
+          if (yinBuffer[t] < threshold && yinBuffer[t] < yinBuffer[t-1] && yinBuffer[t] < yinBuffer[t+1]) {
+            if (yinBuffer[t] < minVal) {
+              minVal = yinBuffer[t];
+              tau = t;
+            }
+          }
+        }
+        
+        // 検出失敗の場合
+        if (tau === 0 || minVal >= threshold) {
+          return -1;
+        }
+        
+        // 放物線補間による精密化
+        const betterTau = refinePeriodByParabolicInterpolation(yinBuffer, tau);
+        
+        return sampleRate / betterTau;
+      }
+      
+      // 放物線補間による周期の精密化
+      function refinePeriodByParabolicInterpolation(yinBuffer, tauEstimate) {
+        if (tauEstimate < 1 || tauEstimate >= yinBuffer.length - 1) {
+          return tauEstimate;
+        }
+        
+        const s0 = yinBuffer[tauEstimate - 1];
+        const s1 = yinBuffer[tauEstimate];
+        const s2 = yinBuffer[tauEstimate + 1];
+        
+        const adjustment = (s2 - s0) / (2 * (2 * s1 - s2 - s0));
+        
+        return tauEstimate + adjustment;
+      }
+      
       // オートコリレーションを使用してピッチを検出
       function autoCorrelate(buffer, sampleRate) {
-        // 最低検出周波数に基づくバッファサイズ（低音E弦の周波数で約30Hz）
-        const minFrequency = 25;
-        const maxSamples = Math.floor(sampleRate / minFrequency);
+        // バッファの準備（センタリングと窓関数の適用）
+        const bufferCopy = new Float32Array(buffer.length);
+        let sum = 0;
         
-        let bestOffset = -1;
-        let bestCorrelation = 0;
-        let rms = 0;
+        // DCオフセットを削除
+        for (let i = 0; i < buffer.length; i++) {
+          sum += buffer[i];
+        }
+        
+        const mean = sum / buffer.length;
+        
+        // ハニング窓を適用してセンタリング
+        for (let i = 0; i < buffer.length; i++) {
+          // ハニング窓: 0.5 * (1 - cos(2π * i / (N-1)))
+          const hannWindow = 0.5 * (1 - Math.cos(2 * Math.PI * i / (buffer.length - 1)));
+          bufferCopy[i] = (buffer[i] - mean) * hannWindow;
+        }
+        
+        // 最低検出周波数（20Hz程度に設定、ベースB0の周波数は約31Hz）
+        const minFrequency = 20;
+        const maxSamples = Math.floor(sampleRate / minFrequency);
+        const correlations = new Float32Array(maxSamples);
         
         // RMS（平均二乗平方根）を計算して信号強度を確認
-        for (let i = 0; i < buffer.length; i++) {
-          rms += buffer[i] * buffer[i];
+        let rms = 0;
+        for (let i = 0; i < bufferCopy.length; i++) {
+          rms += bufferCopy[i] * bufferCopy[i];
         }
-        rms = Math.sqrt(rms / buffer.length);
+        rms = Math.sqrt(rms / bufferCopy.length);
+        
+        // 感度調整を適用
+        const adjustedNoiseFloor = noiseFloor / sensitivityMultiplier;
         
         // 信号が弱すぎる場合は終了
-        if (rms < 0.01) return -1;
-        
-        // 各オフセットに対して相関を探す
-        for (let offset = 0; offset < maxSamples; offset++) {
-          let correlation = 0;
-          let count = 0;
-          
-          // 各サンプルペアの相関を計算
-          for (let i = 0; i < buffer.length - offset; i++) {
-            correlation += buffer[i] * buffer[i + offset];
-            count++;
+        if (rms < adjustedNoiseFloor) {
+          consecutiveFailedDetections++;
+          if (consecutiveFailedDetections > MAX_FAILED_DETECTIONS) {
+            // 音が検出されない状態が続く場合は表示をリセット
+            noteDisplay.textContent = '--';
+            noteDisplay.style.color = 'var(--text-color)';
+            octaveDisplay.textContent = '';
+            frequencyDisplay.textContent = '0 Hz';
+            meterNeedle.style.left = '50%';
           }
-          
-          // 正規化
-          correlation = correlation / count;
-          
-          // 最高の相関関係を見つける
-          if (correlation > bestCorrelation) {
-            bestCorrelation = correlation;
-            bestOffset = offset;
+          return -1;
+        }
+        
+        // 連続検出失敗カウンタをリセット
+        consecutiveFailedDetections = 0;
+        
+        // 自己相関を計算
+        for (let lag = 0; lag < maxSamples; lag++) {
+          let sum = 0;
+          for (let i = 0; i < bufferCopy.length - lag; i++) {
+            sum += bufferCopy[i] * bufferCopy[i + lag];
+          }
+          correlations[lag] = sum / (bufferCopy.length - lag);
+        }
+        
+        // 最初のピークをスキップ（遅延0の自己相関は常に最大）
+        let startIndex = 0;
+        while (startIndex < correlations.length && correlations[startIndex] > correlations[startIndex + 1]) {
+          startIndex++;
+        }
+        
+        // 最大相関を検索
+        let bestPeriod = 0;
+        let bestCorrelation = 0;
+        
+        for (let i = startIndex; i < correlations.length; i++) {
+          if (correlations[i] > bestCorrelation) {
+            bestCorrelation = correlations[i];
+            bestPeriod = i;
           }
         }
         
-        // 相関が弱すぎる場合は結果を信頼しない
-        if (bestCorrelation < 0.4) return -1;
+        // 放物線補間で精度を向上
+        let phase = 0;
+        if (bestPeriod > 0 && bestPeriod < correlations.length - 1) {
+          const leftValue = correlations[bestPeriod - 1];
+          const centerValue = correlations[bestPeriod];
+          const rightValue = correlations[bestPeriod + 1];
+          
+          const delta = rightValue - leftValue;
+          const parabolicAdjustment = delta ? 0.5 * delta / (2 * centerValue - leftValue - rightValue) : 0;
+          phase = parabolicAdjustment;
+        }
         
-        return sampleRate / bestOffset;
+        // 結果の検証
+        if (bestCorrelation < 0.3) {
+          return -1; // 信頼性の低い結果
+        }
+        
+        return sampleRate / (bestPeriod + phase);
+      }
+      
+      // 複数のピッチ検出アルゴリズムを試す
+      function detectPitch(buffer, sampleRate) {
+        // まずYINアルゴリズムを試す
+        const yinFrequency = detectPitchYIN(buffer, sampleRate);
+        
+        if (yinFrequency > 0) {
+          return yinFrequency;
+        }
+        
+        // YINが失敗したら自己相関法を試す
+        return autoCorrelate(buffer, sampleRate);
       }
       
       // ピッチを更新して表示
@@ -606,31 +573,66 @@
         const buffer = new Float32Array(bufferLength);
         analyser.getFloatTimeDomainData(buffer);
         
-        const frequency = autoCorrelate(buffer, audioContext.sampleRate);
+        // 波形を描画
+        drawWaveform(buffer);
+        
+        // 複数のアルゴリズムを試す
+        const frequency = detectPitch(buffer, audioContext.sampleRate);
         
         if (frequency > 0) {
-          const adjustedFrequency = frequency;
-          displayNote(adjustedFrequency);
-          frequencyDisplay.textContent = `${adjustedFrequency.toFixed(2)} Hz`;
+          displayNote(frequency);
+          frequencyDisplay.textContent = `${frequency.toFixed(2)} Hz`;
         }
         
         requestAnimationFrame(updatePitch);
       }
       
+      // 波形を描画
+      function drawWaveform(buffer) {
+        waveformCtx.clearRect(0, 0, waveformCanvas.width, waveformCanvas.height);
+        waveformCtx.lineWidth = 2;
+        waveformCtx.strokeStyle = 'rgba(0, 120, 255, 0.8)';
+        waveformCtx.beginPath();
+        
+        const sliceWidth = waveformCanvas.width / buffer.length;
+        let x = 0;
+        
+        for (let i = 0; i < buffer.length; i++) {
+          const y = (buffer[i] * 30 * sensitivityMultiplier + 0.5) * waveformCanvas.height;
+          
+          if (i === 0) {
+            waveformCtx.moveTo(x, y);
+          } else {
+            waveformCtx.lineTo(x, y);
+          }
+          
+          x += sliceWidth;
+        }
+        
+        waveformCtx.stroke();
+      }
+      
       // 周波数から音名と差を決定
       function displayNote(frequency) {
-        // ノート名とオクターブの配列
+        // ノート名とオクターブの配列（シャープとフラットの両方）
         const noteStrings = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
+        const flatNoteStrings = ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'G♭', 'G', 'A♭', 'A', 'B♭', 'B'];
         
         // 参照A4の周波数とMIDIノート番号
         const referenceA4 = referenceFrequency;
         const referenceA4MidiNote = 69;
         
         // 周波数から最も近いMIDIノート番号を計算
-        const midiNote = Math.round(12 * Math.log2(frequency / referenceA4) + referenceA4MidiNote);
+        const midiNoteFloat = 12 * Math.log2(frequency / referenceA4) + referenceA4MidiNote;
+        const midiNote = Math.round(midiNoteFloat);
         
         // MIDIノート番号からノート名とオクターブを決定
-        const noteName = noteStrings[midiNote % 12];
+        const noteIndex = ((midiNote % 12) + 12) % 12; // 負の値を処理
+        
+        // シャープとフラットのどちらを使うかを判断
+        const useSharps = [0, 2, 4, 5, 7, 9, 11].includes(noteIndex);
+        const noteName = useSharps ? noteStrings[noteIndex] : flatNoteStrings[noteIndex];
+        
         const octave = Math.floor(midiNote / 12) - 1;
         
         // MIDIノート番号に相当する周波数を計算
