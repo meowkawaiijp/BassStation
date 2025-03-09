@@ -1,6 +1,6 @@
 # BassStation - ベース用チューナー 🎸  
 
-[**BassStation**](https://meowkawaiijp.github.io/BassStation/) は、ベースギター専用のチューナーアプリケーションです。高精度なピッチ検出アルゴリズムを搭載し、ベーシストが簡単にチューニングできるよう設計されています。  
+[**BassStation**](https://meowkawaiijp.github.io/BassStation/) は、ベース専用のチューナーアプリケーションです。高精度なピッチ検出アルゴリズムを搭載し、ベーシストが簡単にチューニングできるよう設計されています。  
 
 ## 🚀 特徴  
 
