@@ -26,4 +26,4 @@ cd BassStation
 
 ## 📧 お問い合わせ  
 
-ご質問・フィードバックは [GitHub Issues](https://github.com/meowkawaiijp/issues) までお願いします。  
+ご質問・フィードバックは [GitHub Issues](https://github.com/meowkawaiijp/BassStation/issues) までお願いします。  

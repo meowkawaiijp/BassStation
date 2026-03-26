@@ -15,7 +15,7 @@
     }
     
     body {
-      font-family: 'Roboto', sans-serif;
+      font-family: 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif;
       background-color: var(--main-bg-color);
       color: var(--text-color);
       min-height: 100vh;
@@ -89,6 +89,32 @@
       font-size: 1.2rem;
       margin-top: 0.5rem;
     }
+
+    .cents-display {
+      font-size: 0.95rem;
+      margin-top: 0.25rem;
+      opacity: 0.85;
+      min-height: 1.2em;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    #waveform-canvas {
+      width: 100%;
+      max-width: 400px;
+      height: auto;
+      display: block;
+    }
     
     .meter-container {
       width: 80%;
@@ -160,6 +186,13 @@
     
     select:hover, button:hover {
       background-color: #3a3a3a;
+    }
+
+    select:focus-visible,
+    button:focus-visible,
+    input[type="range"]:focus-visible {
+      outline: 2px solid var(--primary-color);
+      outline-offset: 2px;
     }
     
     button {

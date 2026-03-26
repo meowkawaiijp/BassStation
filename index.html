@@ -4,22 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BassStation - オンラインベースチューナー</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="resource/style.css">
-  
 </head>
 <body>
   <header>
     <h1>BassStation</h1>
     <div class="subtitle">オンラインベースチューナー</div>
   </header>
-  <script src="scripts/main.js"></script>
   <main>
     <div class="tuner-container">
       <div class="tuner-display">
         <div class="note-display">--</div>
         <div class="octave-display"></div>
         <div class="frequency-display">0 Hz</div>
-        <div class="meter-container">
+        <div id="cents-display" class="cents-display" aria-hidden="true"></div>
+        <div class="meter-container" role="meter" aria-label="チューニングのずれ（セント）" aria-valuemin="-50" aria-valuemax="50" aria-valuenow="0">
           <div class="meter-perfect"></div>
           <div class="meter-needle"></div>
         </div>
@@ -50,15 +52,15 @@
         </div>
         
         <div class="control-row">
-          <button id="start-button">マイクをオン</button>
-          <button id="metronome-button">メトロノーム</button>
+          <button type="button" id="start-button" aria-pressed="false" aria-label="マイク入力でチューニングを開始">マイクをオン</button>
+          <button type="button" id="metronome-button" aria-pressed="false" aria-label="メトロノーム 60 BPM">メトロノーム</button>
         </div>
         
         <div class="control-row">
           <div class="control-group">
             <div class="control-label">マイク感度</div>
-            <input type="range" id="sensitivity-slider" min="0.001" max="0.1" step="0.001" value="0.01">
-            <span id="sensitivity-value">1.0</span>
+            <input type="range" id="sensitivity-slider" min="0.25" max="2" step="0.05" value="1" aria-valuemin="0.25" aria-valuemax="2" aria-valuenow="1" aria-label="マイク感度">
+            <span id="sensitivity-value" aria-hidden="true">1.00x</span>
           </div>
         </div>
       </div>
@@ -72,11 +74,13 @@
       </div>
       
       <div class="status-message" id="status-message"></div>
+      <div id="tuner-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
     </div>
   </main>
   
   <footer>
     <p>© 2025 BassStation - すべてのベーシストのためのツール</p>
   </footer>
+  <script src="scripts/main.js" defer></script>
 </body>
 </html>
